@@ -1,0 +1,11 @@
+bin/
+obj/
+.vs
+.suo
+.lock
+.log
+.db
+.db3
+*.zip
+*.nupkg
+packages
