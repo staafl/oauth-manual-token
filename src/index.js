@@ -5,7 +5,6 @@ import App from './App';
 import CallbackPage from './CallbackPage';
 import * as serviceWorker from './serviceWorker';
 
-debugger;
 if (~window.location.href.indexOf("/oauth_callback")) {
     ReactDOM.render(<CallbackPage />, document.getElementById('root'));
 } else {

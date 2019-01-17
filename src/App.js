@@ -4,64 +4,107 @@ import './App.css';
 class App extends Component {
   constructor() {
     super();
-    this.state = { link: "", clientId: "clientId", scope: "scope", link_option: "" };
+    this.state =
+    {
+        link: "",
+
+        link_template: "",
+        curl: ""
+    };
     this.oauth_state = guid();
-    this.oauth_callback_url = window.location.href + "oauth_callback";
+    this.oauth_callback_url = window.location.origin + "/oauth_callback";
     this.anchor_element = React.createRef();
+    // https://docs.microsoft.com/en-us/graph/auth-overview
+    this.templates =
+    {
+        "": "",
+        "office365-implicit":
+            "https://login.microsoftonline.com/${this.state.tenant_id}/oauth2/v2.0/authorize" +
+            "?response_type=token" +
+            "&client_id=${this.state.client_id}" +
+            "&redirect_uri=${escape(this.oauth_callback_url)}" +
+            "&scope=${escape(this.state.scope)}" +
+            "&state=${this.oauth_state}" +
+            "&nonce=${guid()}" +
+            "&response_mode=fragment",
+        "office365-id-token":
+            "https://login.microsoftonline.com/${this.state.tenant_id}/oauth2/v2.0/authorize" +
+            "?response_type=id_token+code" +
+            "&client_id=${this.state.client_id}" +
+            "&redirect_uri=${escape(this.oauth_callback_url)}" +
+            "&scope=${escape(this.state.scope)}" +
+            "&state=${this.oauth_state}" +
+            "&nonce=${guid()}" +
+            "&response_mode=fragment",
+        "office365-auth-token":
+            "https://login.microsoftonline.com/${this.state.tenant_id}/oauth2/v2.0/token" +
+            "?grant_type=access_token" +
+            "&client_id=${this.state.client_id}" +
+            "&code=${this.state.code}" +
+            "&redirect_uri=${escape(this.oauth_callback_url)}",
+    }
   }
-  
-  createStateSetter(statePropName) {
+
+  createStateSetter(statePropName, mapper) {
     return (e) => {
         const toSet = {};
-        toSet[statePropName] = e.target.value;
+        toSet[statePropName] = mapper ? mapper[e.target.value] : e.target.value;
         this.setState(toSet);
     };
   }
-  
+
   render() {
     return (
       <div className="App" style={{width: "100%"}}>
-        <p>Use the following OAuth authentication URL when registering your app:</p>
+        <p>(1) Use the following OAuth redirect URL when registering your app:</p>
         <input readOnly value={this.oauth_callback_url} style={{width: "50%"}} />
-        <p>If creating the callback URL manually, use the following state GUID:</p>
-        <input readOnly value={this.oauth_state} style={{width: "50%"}} />
+        <p>(2) Either paste the OAuth auth URL template here:</p>
+        <input value={this.state.link_template} style={{width: "50%"}} onChange={this.createStateSetter("link_template")} />
         <p>Or, choose one of the following templates ...</p>
-        <select style={{width: "50%"}} onChange={this.createStateSetter("link_option")}>
+        <select style={{width: "50%"}} onChange={this.createStateSetter("link_template", this.templates)}>
             <option value=""></option>
-            <option value="office365">Office 365</option>
+            <option value="office365-implicit">Office 365 Implicit Flow</option>
+            <option value="office365-id-token">Office 365 Id Token</option>
+            <option value="office365-auth-token">Office 365 Auth Token</option>
         </select>
-        <p>... enter your app's client ID and desired token scope ...</p>
-        <input value={this.state.clientId} style={{width: "50%"}} onChange={this.createStateSetter("clientId")} />
+        <p>... and enter the appropriate values for your app:</p>
+        <input value={this.state.client_id} style={{width: "50%"}} onChange={this.createStateSetter("client_id")} />
         <input value={this.state.scope} style={{width: "50%"}} onChange={this.createStateSetter("scope")}  />
-        <p>...and click on the following link:</p>
+        <input value={this.state.tenant_id} style={{width: "50%"}} onChange={this.createStateSetter("tenant_id")}  />
+        <input value={this.state.code} style={{width: "50%"}} onChange={this.createStateSetter("code")}  />
+        <p>(3) Then click the link for a GET request, or copy the CURL command line for POST:</p>
         <p><a ref={this.anchor_element} target="_blank" rel="noreferrer noopener" href={this.state.link}>{this.state.link}</a></p>
+        <input readOnly value={this.state.curl} style={{width: "50%"}} />
       </div>
     );
   }
-  
+
   componentDidUpdate(prevProps, prevState) {
-    if (prevState.clientId != this.state.clientId ||
-        prevState.scope != this.state.scope ||
-        prevState.link_option != this.state.link_option) {
+    let shouldRecalculate = false;
+    for (let k of Object.keys(this.state)) {
+        if (k == "link" || k == "curl") {
+            continue;
+        }
+        if (prevState[k] !== this.state[k]) {
+            shouldRecalculate = true;
+            break;
+        }
+    }
+    if (shouldRecalculate) {
         this.calculateLink();
     }
   }
-  
+
   calculateLink() {
-    let link = "";
     // 8c819b71-e8a9-4906-b861-9f165aa19ec0
     // openid+profile+https://outlook.office.com/MailboxSettings.ReadWrite&
-    if (this.state.link_option === "office365") {
-        link =
-            "https://login.microsoftonline.com/common/oauth2/v2.0/authorize?response_type=id_token+token" +
-            `&client_id=${this.state.clientId}` +
-            `&redirect_uri=${escape(this.oauth_callback_url)}` +
-            `&scope=${this.state.scope}` +
-            `&state=${this.oauth_state}` +
-            `&nonce=${guid()}` +
-            "&response_mode=fragment" ;
+    const link = eval ("`" + this.state.link_template + "`");
+    let curl = "";
+    let match = /(.*)[?](.*)/.exec(link);
+    if (match) {
+        curl = "curl \"" + match[1] + "\" -X POST --data-raw \"" + match[2] + "\" -v -H \"Content-Type: application/x-www-form-urlencoded\"";
     }
-    this.setState({ link });
+    this.setState({ link, curl });
   }
 }
 
