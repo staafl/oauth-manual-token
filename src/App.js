@@ -6,7 +6,7 @@ class App extends Component {
     super();
     this.state = { link: "", clientId: "clientId", scope: "scope", link_option: "" };
     this.oauth_state = guid();
-    this.oauth_callback_url = window.location.href + "callback";
+    this.oauth_callback_url = window.location.href + "oauth_callback";
     this.anchor_element = React.createRef();
   }
   
@@ -21,7 +21,7 @@ class App extends Component {
   render() {
     return (
       <div className="App" style={{width: "100%"}}>
-        <p>Use the following OAuth authentication URL when registering your app: </p>
+        <p>Use the following OAuth authentication URL when registering your app:</p>
         <input readOnly value={this.oauth_callback_url} style={{width: "50%"}} />
         <p>If creating the callback URL manually, use the following state GUID:</p>
         <input readOnly value={this.oauth_state} style={{width: "50%"}} />
