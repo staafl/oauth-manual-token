@@ -7,12 +7,17 @@ class App extends Component {
     this.state =
     {
         link: "",
-
+        client_id: "client_id",
+        scope: "scope",
+        tenant_id: "tenant_id",
+        client_secret: "client_secret",
+        code: "code",
         link_template: "",
         curl: ""
     };
     this.oauth_state = guid();
-    this.oauth_callback_url = window.location.origin + "/oauth_callback";
+    this.oauth_callback_url = "http://localhost:3000/oauth_callback";
+
     this.anchor_element = React.createRef();
     // https://docs.microsoft.com/en-us/graph/auth-overview
     this.templates =
@@ -41,7 +46,9 @@ class App extends Component {
             "?grant_type=authorization_code" +
             "&client_id=${this.state.client_id}" +
             "&code=${this.state.code}" +
-            "&redirect_uri=${escape(this.oauth_callback_url)}",
+            "&redirect_uri=${escape(this.oauth_callback_url)}" +
+            "&client_secret=${escape(this.state.client_secret).replace(\"+\", \"%2B\")va}"
+        //"office365-
     }
   }
 
@@ -72,6 +79,7 @@ class App extends Component {
         <input value={this.state.scope} style={{width: "50%"}} onChange={this.createStateSetter("scope")}  />
         <input value={this.state.tenant_id} style={{width: "50%"}} onChange={this.createStateSetter("tenant_id")}  />
         <input value={this.state.code} style={{width: "50%"}} onChange={this.createStateSetter("code")}  />
+        <input value={this.state.client_secret} style={{width: "50%"}} onChange={this.createStateSetter("client_secret")}  />
         <p>(3) Then click the link for a GET request, or copy the CURL command line for POST:</p>
         <p><a ref={this.anchor_element} target="_blank" rel="noreferrer noopener" href={this.state.link}>{this.state.link}</a></p>
         <input readOnly value={this.state.curl} style={{width: "50%"}} />
