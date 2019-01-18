@@ -38,7 +38,7 @@ class App extends Component {
             "&response_mode=fragment",
         "office365-auth-token":
             "https://login.microsoftonline.com/${this.state.tenant_id}/oauth2/v2.0/token" +
-            "?grant_type=access_token" +
+            "?grant_type=authorization_code" +
             "&client_id=${this.state.client_id}" +
             "&code=${this.state.code}" +
             "&redirect_uri=${escape(this.oauth_callback_url)}",
