@@ -7,7 +7,6 @@ class App extends Component {
     this.state =
     {
         link: "",
-        client_id: "client_id",
         scope: "scope",
         tenant_id: "tenant_id",
         client_secret: "client_secret",
@@ -32,9 +31,9 @@ class App extends Component {
             "&state=${this.oauth_state}" +
             "&nonce=${guid()}" +
             "&response_mode=fragment",
-        "office365-id-token":
+        "office365-auth-token-request-code":
             "https://login.microsoftonline.com/${this.state.tenant_id}/oauth2/v2.0/authorize" +
-            "?response_type=id_token+code" +
+            "?response_type=code" +
             "&client_id=${this.state.client_id}" +
             "&redirect_uri=${escape(this.oauth_callback_url)}" +
             "&scope=${escape(this.state.scope)}" +
@@ -47,7 +46,7 @@ class App extends Component {
             "&client_id=${this.state.client_id}" +
             "&code=${this.state.code}" +
             "&redirect_uri=${escape(this.oauth_callback_url)}" +
-            "&client_secret=${escape(this.state.client_secret).replace(\"+\", \"%2B\")va}"
+            "&client_secret=${escape(this.state.client_secret).replace(\"+\", \"%2B\")}"
         //"office365-
     }
   }
@@ -71,7 +70,7 @@ class App extends Component {
         <select style={{width: "50%"}} onChange={this.createStateSetter("link_template", this.templates)}>
             <option value=""></option>
             <option value="office365-implicit">Office 365 Implicit Flow</option>
-            <option value="office365-id-token">Office 365 Id Token</option>
+            <option value="office365-auth-token-request-code">Office 365 Auth Code Request Code</option>
             <option value="office365-auth-token">Office 365 Auth Token</option>
         </select>
         <p>... and enter the appropriate values for your app:</p>
