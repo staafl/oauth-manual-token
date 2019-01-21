@@ -8,9 +8,12 @@ class App extends Component {
     {
         link: "",
         scope: "scope",
+        client_id: "client_id",
+        scope: "scope"
         tenant_id: "tenant_id",
         client_secret: "client_secret",
         code: "code",
+        refresh_token: "refresh_token",
         link_template: "",
         curl: ""
     };
@@ -47,7 +50,14 @@ class App extends Component {
             "&code=${this.state.code}" +
             "&redirect_uri=${escape(this.oauth_callback_url)}" +
             "&client_secret=${escape(this.state.client_secret).replace(\"+\", \"%2B\")}"
-        //"office365-
+        "office365-use-refresh-token":
+            "https://login.microsoftonline.com/${this.state.tenant_id}/oauth2/v2.0/token" +
+            "?grant_type=refresh_token" +
+            "&client_id=${this.state.client_id}" +
+            "&scope=${escape(this.state.scope)}" +
+            "&refresh_token=${this.state.refresh_token}" +
+            "&redirect_uri=${escape(this.oauth_callback_url)}" +
+            "&client_secret=${escape(this.state.client_secret).replace(\"+\", \"%2B\")}"
     }
   }
 
@@ -69,9 +79,10 @@ class App extends Component {
         <p>Or, choose one of the following templates ...</p>
         <select style={{width: "50%"}} onChange={this.createStateSetter("link_template", this.templates)}>
             <option value=""></option>
-            <option value="office365-implicit">Office 365 Implicit Flow</option>
-            <option value="office365-auth-token-request-code">Office 365 Auth Code Request Code</option>
-            <option value="office365-auth-token">Office 365 Auth Token</option>
+            <option value="office365-implicit">Office 365 - Implicit Flow</option>
+            <option value="office365-auth-token-request-code">Office 365 - Authorization Flow Request Code</option>
+            <option value="office365-auth-token">Office 365 - Auth Token</option>
+            <option value="office365-use-refresh-token">Office 365 - Use Refresh Token</option>
         </select>
         <p>... and enter the appropriate values for your app:</p>
         <input value={this.state.client_id} style={{width: "50%"}} onChange={this.createStateSetter("client_id")} />
@@ -79,6 +90,7 @@ class App extends Component {
         <input value={this.state.tenant_id} style={{width: "50%"}} onChange={this.createStateSetter("tenant_id")}  />
         <input value={this.state.code} style={{width: "50%"}} onChange={this.createStateSetter("code")}  />
         <input value={this.state.client_secret} style={{width: "50%"}} onChange={this.createStateSetter("client_secret")}  />
+        <input value={this.state.refresh_token} style={{width: "50%"}} onChange={this.createStateSetter("refresh_token")}  />
         <p>(3) Then click the link for a GET request, or copy the CURL command line for POST:</p>
         <p><a ref={this.anchor_element} target="_blank" rel="noreferrer noopener" href={this.state.link}>{this.state.link}</a></p>
         <input readOnly value={this.state.curl} style={{width: "50%"}} />
