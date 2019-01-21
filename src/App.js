@@ -9,7 +9,7 @@ class App extends Component {
         link: "",
         scope: "scope",
         client_id: "client_id",
-        scope: "scope"
+        scope: "scope",
         tenant_id: "tenant_id",
         client_secret: "client_secret",
         code: "code",
@@ -49,7 +49,7 @@ class App extends Component {
             "&client_id=${this.state.client_id}" +
             "&code=${this.state.code}" +
             "&redirect_uri=${escape(this.oauth_callback_url)}" +
-            "&client_secret=${escape(this.state.client_secret).replace(\"+\", \"%2B\")}"
+            "&client_secret=${escape(this.state.client_secret).replace(\"+\", \"%2B\")}",
         "office365-use-refresh-token":
             "https://login.microsoftonline.com/${this.state.tenant_id}/oauth2/v2.0/token" +
             "?grant_type=refresh_token" +
